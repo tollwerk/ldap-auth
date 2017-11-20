@@ -62,8 +62,8 @@ class LdapConnection implements ConnectionInterface
     public function __construct(array $config)
     {
         $this->backup = $config['backup_rebind'];
-        $this->tls    = $config['tls'];
-        $this->ssl    = $config['ssl'];
+        $this->tls = $config['tls'];
+        $this->ssl = $config['ssl'];
 
         $this->domainController = $this->getDomainControllerStrategy($config['domain_controller']);
     }
@@ -80,7 +80,9 @@ class LdapConnection implements ConnectionInterface
 
         $hostname = $this->domainController->getHostname();
 
-        return $this->connection = ldap_connect($hostname, $port);
+        $this->connection = ldap_connect($hostname, $port);
+        ldap_set_option($this->connection, LDAP_OPT_PROTOCOL_VERSION, 3);
+        return $this->connection;
     }
 
 
@@ -98,7 +100,7 @@ class LdapConnection implements ConnectionInterface
     {
         // Tries to run the LDAP Connection as TLS
         if ($this->tls) {
-            if ( ! ldap_start_tls($this->connection)) {
+            if (!ldap_start_tls($this->connection)) {
                 throw new ConnectionException('Unable to Connect to LDAP using TLS.');
             }
         }
@@ -137,7 +139,7 @@ class LdapConnection implements ConnectionInterface
     /**
      * @param string $dn
      * @param string $identifier
-     * @param array  $fields
+     * @param array $fields
      *
      * @return resource
      */

@@ -2,8 +2,10 @@
 
 namespace Krenor\LdapAuth;
 
-use Illuminate\Contracts\Auth\UserProvider;
+use App\User;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\UserProvider;
+use Krenor\LdapAuth\Exceptions\EmptySearchResultException;
 use Krenor\LdapAuth\Objects\Ldap;
 
 class LdapAuthUserProvider implements UserProvider
@@ -41,7 +43,7 @@ class LdapAuthUserProvider implements UserProvider
     public function retrieveById($identifier)
     {
         return $this->retrieveByCredentials(
-            ['username' => $identifier]
+            ['email' => $identifier]
         );
     }
 
@@ -73,18 +75,41 @@ class LdapAuthUserProvider implements UserProvider
      * Retrieve a user by the given credentials.
      *
      * @param  array $credentials
-     * @return \Krenor\LdapAuth\Objects\LdapUser|null
+     * @return Authenticatable|null
      */
     public function retrieveByCredentials(array $credentials)
     {
-        $username = $credentials['username'];
-        $result = $this->ldap->find($username);
+//        $username = $credentials[config('ldap.auth_identifier_name')];
+        $username = $credentials['email'];
 
-        if( !is_null($result) ){
-            $user = new $this->model;
-            $user->build( $result );
+        // If the user is identified by his ID
+        if (is_int($username)) {
+            return User::find($username) ?: null;
+        }
 
-            return $user;
+        // Else: LDAP query
+        try {
+            $result = $this->ldap->find($username);
+
+            if (!is_null($result)) {
+                $ldapMapping = array_replace([
+                    'name' => 'name',
+                    'email' => 'email',
+                ], $this->getLdapMapping());
+                $user = User::where('email', $username)->first();
+                if (!($user instanceof User)) {
+                    $user = new User();
+                    $user->email = $username;
+                    $user->admin = 0;
+                }
+                $user->name = $result[$ldapMapping['name']][0];
+                $user->password = $result['dn'];
+                $user->active = 1;
+                $user->save();
+                return $user;
+            }
+        } catch (EmptySearchResultException $e) {
+            // Do nothing
         }
 
         return null;
@@ -100,9 +125,25 @@ class LdapAuthUserProvider implements UserProvider
     public function validateCredentials(Authenticatable $user, array $credentials)
     {
         return $this->ldap->auth(
-            $user->dn,
+            $user->password,
             $credentials['password']
         );
     }
 
+    /**
+     * Return the active LDAP property mapping
+     *
+     * @return array LDAP property mapping
+     */
+    protected function getLdapMapping()
+    {
+        $ldapMapping = [];
+        foreach (array_filter(array_map('trim', explode(',', env('LDAP_MAPPING')))) as $mapping) {
+            $mapping = explode('=', $mapping);
+            if (count($mapping) == 2) {
+                $ldapMapping[trim($mapping[0])] = trim($mapping[1]);
+            }
+        }
+        return $ldapMapping;
+    }
 }

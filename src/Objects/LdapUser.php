@@ -40,7 +40,7 @@ class LdapUser implements UserContract, AuthorizableContract, LdapUserContract
      */
     public function getAuthIdentifierName()
     {
-        return 'samaccountname';
+        return config('ldap.auth_identifier_name');
     }
 
 
