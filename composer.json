@@ -1,6 +1,6 @@
 {
-  "name": "krenor/ldap-auth",
-  "description": "Basic readonly authentication via LDAP for Laravel 5.2",
+  "name": "tollwerk/addea-ldap-auth",
+  "description": "Simple readonly LDAP authentication with Laravel for the addea Open Innovation Tool (fork of https://github.com/krenor/ldap-auth)",
   "keywords": [
     "laravel 5.2", "laravel", "laravel auth", "laravel authentication",
     "ldap", "ldap authentication", "active directory",
@@ -13,6 +13,12 @@
       "email": "stanislav.goldmann@gmail.com",
       "role": "Developer",
       "homepage": "https://github.com/krenor"
+    },
+    {
+      "name": "Joschi Kuphal",
+      "email": "joschi@tollwerk.de",
+      "role": "Developer",
+      "homepage": "https://tollwerk.de"
     }
   ],
   "require": {
