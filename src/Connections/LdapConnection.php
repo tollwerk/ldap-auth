@@ -139,7 +139,7 @@ class LdapConnection implements ConnectionInterface
     /**
      * @param string $dn
      * @param string $identifier
-     * @param array $fields
+     * @param array  $fields
      *
      * @return resource
      */

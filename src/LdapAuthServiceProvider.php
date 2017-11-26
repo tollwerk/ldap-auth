@@ -25,7 +25,7 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $config = __DIR__ . '/config/ldap.php';
+        $config = __DIR__.'/config/ldap.php';
 
         // Add publishable configuration
         $this->publishes([
@@ -53,18 +53,6 @@ class LdapAuthServiceProvider extends ServiceProvider
         });
     }
 
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return [ 'auth' ];
-    }
-
-
     /**
      * @return array
      *
@@ -77,6 +65,16 @@ class LdapAuthServiceProvider extends ServiceProvider
         }
 
         throw new MissingConfigurationException();
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return ['auth'];
     }
 
 }

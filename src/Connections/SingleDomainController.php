@@ -10,6 +10,6 @@ class SingleDomainController extends DomainController
      */
     public function getHostname()
     {
-        return $this->protocol . reset($this->domain_controller);
+        return $this->protocol.reset($this->domain_controller);
     }
 }

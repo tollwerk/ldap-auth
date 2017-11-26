@@ -13,7 +13,7 @@ class RebindDomainController extends DomainController
         $hostname = null;
 
         foreach ($this->domain_controller as $dc) {
-            $hostname .= $this->protocol . "$dc ";
+            $hostname .= $this->protocol."$dc ";
         }
 
         return $hostname;

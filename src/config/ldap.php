@@ -58,7 +58,7 @@ return [
         'displayname',
         'memberof'
     ],
-    
+
     /*
     |--------------------------------------------------
     | Backup Rebinding

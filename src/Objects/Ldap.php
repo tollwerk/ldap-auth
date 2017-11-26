@@ -9,7 +9,6 @@ use Krenor\LdapAuth\Exceptions\MissingConfigurationException;
 
 class Ldap
 {
-
     /**
      * The current LDAP Connection.
      *
@@ -30,21 +29,18 @@ class Ldap
      * @var string
      */
     protected $base_dn;
-
-    /**
-     * The filter to execute a search query on.
-     *
-     * @var string
-     */
-    private $search_filter;
-
     /**
      * The fields to fetch from a search result.
      *
      * @var array
      */
     protected $search_fields = [];
-
+    /**
+     * The filter to execute a search query on.
+     *
+     * @var string
+     */
+    private $search_filter;
     /**
      * User with permissions for preventing anonymous bindings.
      *
@@ -59,7 +55,6 @@ class Ldap
      */
     private $admin_pass;
 
-
     /**
      * Tries to connect and bind to the LDAP
      *
@@ -70,14 +65,31 @@ class Ldap
     public function __construct($options)
     {
         $config = $this->bindConfig($options);
-
-        // Build Common Name from Config file and append to base DN
-        $this->admin_user = 'CN='.$this->admin_user.','.$this->base_dn;
-
         $this->ldap = new LdapConnection($config);
         $this->connect($this->ldap);
     }
 
+    /**
+     * Bind configuration file to class properties
+     * as long as these already exist
+     *
+     * @param array $config Complete config
+     *
+     * @return array $config Striped config
+     */
+    private function bindConfig(array $config)
+    {
+        foreach ($config as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->{$key} = $value;
+                // Remove config key
+                unset($config[$key]);
+            }
+        }
+
+        // Every non-property key is left over and returned
+        return $config;
+    }
 
     /**
      * Initializes the connecting parameters.
@@ -101,7 +113,6 @@ class Ldap
 
         $this->ldap->bind($this->admin_user, $this->admin_pass);
     }
-
 
     /**
      * Execute a search query in the LDAP Base DN.
@@ -134,7 +145,6 @@ class Ldap
         throw new EmptySearchResultException;
     }
 
-
     /**
      * Rebinds with a given DN and Password
      *
@@ -149,28 +159,4 @@ class Ldap
     {
         return $this->ldap->bind($username, $password);
     }
-
-
-    /**
-     * Bind configuration file to class properties
-     * as long as these already exist
-     *
-     * @param array $config Complete config
-     *
-     * @return array $config Striped config
-     */
-    private function bindConfig(array $config)
-    {
-        foreach ($config as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->{$key} = $value;
-                // Remove config key
-                unset($config[$key]);
-            }
-        }
-
-        // Every non-property key is left over and returned
-        return $config;
-    }
-
 }

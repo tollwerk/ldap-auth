@@ -35,7 +35,7 @@ abstract class DomainController
 
     /**
      * Get the hostname for an LDAP binding.
-     * 
+     *
      * @return string
      */
     abstract public function getHostname();
