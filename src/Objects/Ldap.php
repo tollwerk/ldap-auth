@@ -43,7 +43,7 @@ class Ldap
      *
      * @var array
      */
-    protected $search_fields = [ ];
+    protected $search_fields = [];
 
     /**
      * User with permissions for preventing anonymous bindings.
@@ -72,7 +72,7 @@ class Ldap
         $config = $this->bindConfig($options);
 
         // Build Common Name from Config file and append to base DN
-        $this->admin_user = 'CN=' . $this->admin_user . ',' . $this->base_dn;
+        $this->admin_user = 'CN='.$this->admin_user.','.$this->base_dn;
 
         $this->ldap = new LdapConnection($config);
         $this->connect($this->ldap);
@@ -107,25 +107,26 @@ class Ldap
      * Execute a search query in the LDAP Base DN.
      *
      * @param string $identifier msdn.microsoft.com/En-US/library/aa746475.aspx
-     * @param array  $fields     specific attributes to be returned
+     * @param array $fields specific attributes to be returned
      *
      * @return array $entry
      * @throws EmptySearchResultException
      */
-    public function find($identifier, array $fields = [ ])
+    public function find($identifier, array $fields = [])
     {
         // Get all result entries
         $results = $this->ldap->search(
             $this->base_dn,
-            $this->search_filter . '=' . $identifier,
-            ( $fields ?: $this->search_fields )
+            (strpos($this->search_filter, '%s') === false) ?
+                ($this->search_filter.'='.$identifier) : sprintf($this->search_filter, $identifier),
+            ($fields ?: $this->search_fields)
         );
 
         if (count($results) > 0) {
             $entry = $this->ldap->entry($results);
 
             // Returning a single LDAP entry
-            if (isset( $entry[0] ) && ! empty( $entry[0] )) {
+            if (isset($entry[0]) && !empty($entry[0])) {
                 return $entry[0];
             }
         }
@@ -164,7 +165,7 @@ class Ldap
             if (property_exists($this, $key)) {
                 $this->{$key} = $value;
                 // Remove config key
-                unset( $config[$key] );
+                unset($config[$key]);
             }
         }
 
